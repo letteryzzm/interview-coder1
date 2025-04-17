@@ -1,64 +1,71 @@
 // Import necessary modules
-import axios from "axios"
-import { store } from "../store"
+import axios from "axios";
+import dotenv from "dotenv";
+import { store } from "../store";
 
 // Define interfaces for ProblemInfo and related structures
+dotenv.config();
 
 interface DebugSolutionResponse {
-  thoughts: string[]
-  old_code: string
-  new_code: string
-  time_complexity: string
-  space_complexity: string
+  thoughts: string[];
+  old_code: string;
+  new_code: string;
+  time_complexity: string;
+  space_complexity: string;
 }
 
 interface ProblemInfo {
-  problem_statement?: string
+  problem_statement?: string;
   input_format?: {
-    description?: string
+    description?: string;
     parameters?: Array<{
-      name: string
-      type: string
-      subtype?: string
-    }>
-  }
+      name: string;
+      type: string;
+      subtype?: string;
+    }>;
+  };
   output_format?: {
-    description?: string
-    type?: string
-    subtype?: string
-  }
+    description?: string;
+    type?: string;
+    subtype?: string;
+  };
   constraints?: Array<{
-    description: string
-    parameter?: string
+    description: string;
+    parameter?: string;
     range?: {
-      min?: number
-      max?: number
-    }
-  }>
-  test_cases?: any // Adjust the type as needed
+      min?: number;
+      max?: number;
+    };
+  }>;
+  test_cases?: any; // Adjust the type as needed
 }
 
 interface StoreSchema {
-  openaiApiKey: string
+  openaiApiKey: string;
   // add other store fields here
+}
+// 获取 API 密钥的辅助函数
+function getApiKey(): string {
+  // 优先使用环境变量中的 API 密钥
+  const envApiKey = process.env.OPENROUTER_API_KEY;
+  if (envApiKey) {
+    return envApiKey;
+  }
 }
 
 // Define the extractProblemInfo function
 export async function extractProblemInfo(
   imageDataList: string[]
 ): Promise<any> {
-  const storedApiKey = store.get("openaiApiKey")
-  if (!storedApiKey) {
-    throw new Error("OpenAI API key not set")
-  }
+  const apiKey = getApiKey();
 
   // Prepare the image contents for the message
   const imageContents = imageDataList.map((imageData) => ({
     type: "image_url",
     image_url: {
-      url: `data:image/jpeg;base64,${imageData}`
-    }
-  }))
+      url: `data:image/png;base64,${imageData}`,
+    },
+  }));
 
   // Construct the messages to send to the model
   const messages = [
@@ -78,14 +85,14 @@ export async function extractProblemInfo(
             "Note: test cases must have 'input.args' as an array of arguments in order,\n" +
             "'output.result' containing the expected return value.\n" +
             "Example for two_sum([2,7,11,15], 9) returning [0,1]:\n" +
-            "{'input': {'args': [[2,7,11,15], 9]}, 'output': {'result': [0,1]}}\n"
+            "{'input': {'args': [[2,7,11,15], 9]}, 'output': {'result': [0,1]}}\n",
         },
-        ...imageContents
-      ]
-    }
-  ]
+        ...imageContents,
+      ],
+    },
+  ];
 
-  // Define the function schema
+  // Define the function schema 定义函数模式
   const functions = [
     {
       name: "extract_problem_details",
@@ -97,14 +104,14 @@ export async function extractProblemInfo(
           problem_statement: {
             type: "string",
             description:
-              "The ENTIRE main problem statement describing what needs to be solved"
+              "The ENTIRE main problem statement describing what needs to be solved",
           },
           input_format: {
             type: "object",
             properties: {
               description: {
                 type: "string",
-                description: "Description of the input format"
+                description: "Description of the input format",
               },
               parameters: {
                 type: "array",
@@ -113,7 +120,7 @@ export async function extractProblemInfo(
                   properties: {
                     name: {
                       type: "string",
-                      description: "Name of the parameter"
+                      description: "Name of the parameter",
                     },
                     type: {
                       type: "string",
@@ -125,28 +132,28 @@ export async function extractProblemInfo(
                         "array3d",
                         "matrix",
                         "tree",
-                        "graph"
+                        "graph",
                       ],
-                      description: "Type of the parameter"
+                      description: "Type of the parameter",
                     },
                     subtype: {
                       type: "string",
                       enum: ["integer", "float", "string", "char", "boolean"],
-                      description: "For arrays, specifies the type of elements"
-                    }
+                      description: "For arrays, specifies the type of elements",
+                    },
                   },
-                  required: ["name", "type"]
-                }
-              }
+                  required: ["name", "type"],
+                },
+              },
             },
-            required: ["description", "parameters"]
+            required: ["description", "parameters"],
           },
           output_format: {
             type: "object",
             properties: {
               description: {
                 type: "string",
-                description: "Description of the expected output format"
+                description: "Description of the expected output format",
               },
               type: {
                 type: "string",
@@ -157,17 +164,17 @@ export async function extractProblemInfo(
                   "array2d",
                   "array3d",
                   "matrix",
-                  "boolean"
+                  "boolean",
                 ],
-                description: "Type of the output"
+                description: "Type of the output",
               },
               subtype: {
                 type: "string",
                 enum: ["integer", "float", "string", "char", "boolean"],
-                description: "For arrays, specifies the type of elements"
-              }
+                description: "For arrays, specifies the type of elements",
+              },
             },
-            required: ["description", "type"]
+            required: ["description", "type"],
           },
           constraints: {
             type: "array",
@@ -176,22 +183,22 @@ export async function extractProblemInfo(
               properties: {
                 description: {
                   type: "string",
-                  description: "Description of the constraint"
+                  description: "Description of the constraint",
                 },
                 parameter: {
                   type: "string",
-                  description: "The parameter this constraint applies to"
+                  description: "The parameter this constraint applies to",
                 },
                 range: {
                   type: "object",
                   properties: {
                     min: { type: "number" },
-                    max: { type: "number" }
-                  }
-                }
+                    max: { type: "number" },
+                  },
+                },
               },
-              required: ["description"]
-            }
+              required: ["description"],
+            },
           },
           test_cases: {
             type: "array",
@@ -214,18 +221,18 @@ export async function extractProblemInfo(
                                 { type: "integer" },
                                 { type: "string" },
                                 { type: "boolean" },
-                                { type: "null" }
-                              ]
-                            }
+                                { type: "null" },
+                              ],
+                            },
                           },
                           { type: "object" },
                           { type: "boolean" },
-                          { type: "null" }
-                        ]
-                      }
-                    }
+                          { type: "null" },
+                        ],
+                      },
+                    },
                   },
-                  required: ["args"]
+                  required: ["args"],
                 },
                 output: {
                   type: "object",
@@ -241,65 +248,66 @@ export async function extractProblemInfo(
                               { type: "integer" },
                               { type: "string" },
                               { type: "boolean" },
-                              { type: "null" }
-                            ]
-                          }
+                              { type: "null" },
+                            ],
+                          },
                         },
                         { type: "object" },
                         { type: "boolean" },
-                        { type: "null" }
-                      ]
-                    }
+                        { type: "null" },
+                      ],
+                    },
                   },
-                  required: ["result"]
-                }
+                  required: ["result"],
+                },
               },
-              required: ["input", "output"]
+              required: ["input", "output"],
             },
-            minItems: 1
-          }
+            minItems: 1,
+          },
         },
-        required: ["problem_statement"]
-      }
-    }
-  ]
+        required: ["problem_statement"],
+      },
+    },
+  ];
 
-  // Prepare the request payload
+  // Prepare the request payload 准备请求有效负载
   const payload = {
-    model: "gpt-4o-mini",
+    model: "openai/gpt-4.1-mini",
     messages: messages,
     functions: functions,
     function_call: { name: "extract_problem_details" },
-    max_tokens: 4096
-  }
+    max_tokens: 4096,
+  };
 
   try {
-    // Send the request to the completion endpoint
     const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      payload,
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        ...payload,
+      },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${storedApiKey}`
-        }
+          Authorization: `Bearer ${apiKey}`,
+        },
       }
-    )
+    );
 
     // Extract the function call arguments from the response
     const functionCallArguments =
-      response.data.choices[0].message.function_call.arguments
+      response.data.choices[0].message.function_call.arguments;
 
     // Return the parsed function call arguments
-    return JSON.parse(functionCallArguments)
+    return JSON.parse(functionCallArguments);
   } catch (error) {
     if (error.response?.status === 429) {
       throw new Error(
         "API Key out of credits. Please refill your OpenAI API credits and try again."
-      )
+      );
     }
 
-    throw error
+    throw error;
   }
 }
 
@@ -307,12 +315,9 @@ export async function generateSolutionResponses(
   problemInfo: ProblemInfo
 ): Promise<any> {
   try {
-    const storedApiKey = store.get("openaiApiKey") as string
-    if (!storedApiKey) {
-      throw new Error("OpenAI API key not set")
-    }
+    const apiKey = getApiKey();
 
-    // Build the complete prompt with all problem information
+    // Build the complete prompt with all problem information使用所有问题信息构建完整的提示
     const promptContent = `Given the following coding problem:
 
 Problem Statement:
@@ -339,11 +344,11 @@ Constraints:
 ${
   problemInfo.constraints
     ?.map((c) => {
-      let constraintStr = `- ${c.description}`
+      let constraintStr = `- ${c.description}`;
       if (c.range) {
-        constraintStr += ` (${c.parameter}: ${c.range.min} to ${c.range.max})`
+        constraintStr += ` (${c.parameter}: ${c.range.min} to ${c.range.max})`;
       }
-      return constraintStr
+      return constraintStr;
     })
     .join("\n") ?? "No constraints specified"
 }
@@ -368,37 +373,37 @@ Format Requirements:
 2. Indent code properly with spaces
 3. Include clear code comments
 4. Response must be valid JSON
-5. Return only the JSON object with no markdown or other formatting`
+5. Return only the JSON object with no markdown or other formatting`;
 
     const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
+      "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "o1-mini",
+        model: "openai/gpt-4.1-mini",
         messages: [
           {
             role: "user",
-            content: promptContent
-          }
-        ]
+            content: promptContent,
+          },
+        ],
       },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${storedApiKey}`
-        }
+          Authorization: `Bearer ${apiKey}`,
+        },
       }
-    )
+    );
 
-    const content = response.data.choices[0].message.content
-    return JSON.parse(content)
+    const content = response.data.choices[0].message.content;
+    return JSON.parse(content);
   } catch (error: any) {
     if (error.response?.status === 429) {
       throw new Error(
         "API Key out of credits. Please refill your OpenAI API credits and try again."
-      )
+      );
     }
-    console.error("Error details:", error)
-    throw new Error(`Error generating solutions: ${error.message}`)
+    console.error("Error details:", error);
+    throw new Error(`Error generating solutions: ${error.message}`);
   }
 }
 
@@ -410,17 +415,17 @@ export async function debugSolutionResponses(
   const imageContents = imageDataList.map((imageData) => ({
     type: "image_url",
     image_url: {
-      url: `data:image/jpeg;base64,${imageData}`
-    }
-  }))
+      url: `data:image/png;base64,${imageData}`,
+    },
+  }));
 
   // Build the prompt with error handling
   const problemStatement =
-    problemInfo.problem_statement ?? "Problem statement not available"
+    problemInfo.problem_statement ?? "Problem statement not available";
 
   const inputFormatDescription =
     problemInfo.input_format?.description ??
-    "Input format description not available"
+    "Input format description not available";
 
   const inputParameters = problemInfo.input_format?.parameters
     ? problemInfo.input_format.parameters
@@ -428,11 +433,11 @@ export async function debugSolutionResponses(
           (p) => `- ${p.name}: ${p.type}${p.subtype ? ` of ${p.subtype}` : ""}`
         )
         .join(" ")
-    : "Input parameters not available"
+    : "Input parameters not available";
 
   const outputFormatDescription =
     problemInfo.output_format?.description ??
-    "Output format description not available"
+    "Output format description not available";
 
   const returns = problemInfo.output_format?.type
     ? `Returns: ${problemInfo.output_format.type}${
@@ -440,26 +445,26 @@ export async function debugSolutionResponses(
           ? ` of ${problemInfo.output_format.subtype}`
           : ""
       }`
-    : "Returns: Output type not available"
+    : "Returns: Output type not available";
 
   const constraints = problemInfo.constraints
     ? problemInfo.constraints
         .map((c) => {
-          let constraintStr = `- ${c.description}`
+          let constraintStr = `- ${c.description}`;
           if (c.range) {
-            constraintStr += ` (${c.parameter}: ${c.range.min} to ${c.range.max})`
+            constraintStr += ` (${c.parameter}: ${c.range.min} to ${c.range.max})`;
           }
-          return constraintStr
+          return constraintStr;
         })
         .join(" ")
-    : "Constraints not available"
+    : "Constraints not available";
 
-  let exampleTestCases = "Test cases not available"
+  let exampleTestCases = "Test cases not available";
   if (problemInfo.test_cases) {
     try {
-      exampleTestCases = JSON.stringify(problemInfo.test_cases, null, 2)
+      exampleTestCases = JSON.stringify(problemInfo.test_cases, null, 2);
     } catch {
-      exampleTestCases = "Test cases not available"
+      exampleTestCases = "Test cases not available";
     }
   }
 
@@ -492,7 +497,7 @@ IMPORTANT FORMATTING NOTES:
 1. Use actual line breaks (press enter for new lines) in both old_code and new_code
 2. Maintain proper indentation with spaces in both code blocks
 3. Add inline comments ONLY on changed lines in new_code
-4. The entire response must be valid JSON that can be parsed`
+4. The entire response must be valid JSON that can be parsed`;
 
   // Construct the messages array
   const messages = [
@@ -501,12 +506,12 @@ IMPORTANT FORMATTING NOTES:
       content: [
         {
           type: "text",
-          text: debugPrompt
+          text: debugPrompt,
         },
-        ...imageContents
-      ]
-    }
-  ]
+        ...imageContents,
+      ],
+    },
+  ];
 
   // Define the function schema
   const functions = [
@@ -526,92 +531,91 @@ IMPORTANT FORMATTING NOTES:
             thoughtGuidelines: [
               "First thought should capture that initial moment of recognition - connecting it to something familiar or identifying the core challenge. Include verbal cues like 'hmm' or 'this reminds me of' that show active thinking.",
               "Second thought must explore your emerging strategy and MUST explicitly name the algorithm or data structure being considered. Show both knowledge and uncertainty - like 'I could probably use a heap here, but I'm worried about...'",
-              "Third thought should show satisfaction at having a direction while acknowledging you still need to work out specifics - like 'Okay, I think I see how this could work...'"
-            ]
+              "Third thought should show satisfaction at having a direction while acknowledging you still need to work out specifics - like 'Okay, I think I see how this could work...'",
+            ],
           },
           old_code: {
             type: "string",
             description:
-              "The exact code implementation found in the image. There should be no additional lines of code added, this should only contain the code that is visible from the images, regardless of correctness or any fixes you can make. Include every line of code that are visible in the image.  You should use the image that has the most recent, longest version of the code, making sure to combine multiple images if necessary."
+              "The exact code implementation found in the image. There should be no additional lines of code added, this should only contain the code that is visible from the images, regardless of correctness or any fixes you can make. Include every line of code that are visible in the image.  You should use the image that has the most recent, longest version of the code, making sure to combine multiple images if necessary.",
           },
           new_code: {
             type: "string",
             description:
-              "The improved code implementation with in-line comments only on lines of code that were changed"
+              "The improved code implementation with in-line comments only on lines of code that were changed",
           },
           time_complexity: {
             type: "string",
             description:
-              "Time complexity with explanation, format as 'O(_) because _.' Importantly, if there were slight optimizations in the complexity that don't affect the overall complexity, MENTION THEM."
+              "Time complexity with explanation, format as 'O(_) because _.' Importantly, if there were slight optimizations in the complexity that don't affect the overall complexity, MENTION THEM.",
           },
           space_complexity: {
             type: "string",
             description:
-              "Space complexity with explanation, format as 'O(_) because _' Importantly, if there were slight optimizations in the complexity that don't affect the overall complexity, MENTION THEM."
-          }
+              "Space complexity with explanation, format as 'O(_) because _' Importantly, if there were slight optimizations in the complexity that don't affect the overall complexity, MENTION THEM.",
+          },
         },
         required: [
           "thoughts",
           "old_code",
           "new_code",
           "time_complexity",
-          "space_complexity"
-        ]
-      }
-    }
-  ]
+          "space_complexity",
+        ],
+      },
+    },
+  ];
 
   // Prepare the payload for the API call
   const payload = {
-    model: "gpt-4o",
+    model: "openai/gpt-4.1-mini",
     messages: messages,
     max_tokens: 4000,
     temperature: 0,
     functions: functions,
-    function_call: { name: "provide_solution" }
-  }
+    function_call: { name: "provide_solution" },
+  };
 
   try {
-    // Send the request to the OpenAI API
-    const storedApiKey = store.get("openaiApiKey") as string
-    if (!storedApiKey) {
-      throw new Error("OpenAI API key not set")
-    }
+    const apiKey = getApiKey();
 
     const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      payload,
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        ...payload,
+        model: "openai/gpt-4.1-mini",
+      },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${storedApiKey}`
-        }
+          Authorization: `Bearer ${apiKey}`,
+        },
       }
-    )
+    );
 
     // Extract the function call arguments from the response
     const functionCallArguments =
-      response.data.choices[0].message.function_call.arguments
+      response.data.choices[0].message.function_call.arguments;
 
     // Parse and return the response
-    return JSON.parse(functionCallArguments) as DebugSolutionResponse
+    return JSON.parse(functionCallArguments) as DebugSolutionResponse;
   } catch (error: any) {
     if (error.response?.status === 404) {
       throw new Error(
         "API endpoint not found. Please check the model name and URL."
-      )
+      );
     } else if (error.response?.status === 401) {
-      throw new Error("Authentication failed. Please check your API key.")
+      throw new Error("Authentication failed. Please check your API key.");
     } else if (error.response?.status === 401) {
       throw new Error(
         "API Key out of credits. Please refill your OpenAI API credits and try again."
-      )
+      );
     } else {
       throw new Error(
         `OpenAI API error: ${
           error.response?.data?.error?.message || error.message
         }`
-      )
+      );
     }
   }
 }

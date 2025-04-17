@@ -1,33 +1,33 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react";
 
 interface ExtraScreenshotsQueueCommandsProps {
-  extraScreenshots: any[]
-  onTooltipVisibilityChange?: (visible: boolean, height: number) => void
+  extraScreenshots: any[];
+  onTooltipVisibilityChange?: (visible: boolean, height: number) => void;
 }
 
 const ExtraScreenshotsQueueCommands: React.FC<
   ExtraScreenshotsQueueCommandsProps
 > = ({ extraScreenshots, onTooltipVisibilityChange }) => {
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
-  const tooltipRef = useRef<HTMLDivElement>(null)
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (onTooltipVisibilityChange) {
-      let tooltipHeight = 0
+      let tooltipHeight = 0;
       if (tooltipRef.current && isTooltipVisible) {
-        tooltipHeight = tooltipRef.current.offsetHeight + 10 // Adjust if necessary
+        tooltipHeight = tooltipRef.current.offsetHeight + 10; // Adjust if necessary
       }
-      onTooltipVisibilityChange(isTooltipVisible, tooltipHeight)
+      onTooltipVisibilityChange(isTooltipVisible, tooltipHeight);
     }
-  }, [isTooltipVisible, onTooltipVisibilityChange])
+  }, [isTooltipVisible, onTooltipVisibilityChange]);
 
   const handleMouseEnter = () => {
-    setIsTooltipVisible(true)
-  }
+    setIsTooltipVisible(true);
+  };
 
   const handleMouseLeave = () => {
-    setIsTooltipVisible(false)
-  }
+    setIsTooltipVisible(false);
+  };
 
   return (
     <div>
@@ -38,7 +38,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
             <span className="text-[11px] leading-none">Show/Hide</span>
             <div className="flex gap-1">
               <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                ⌘
+                Ctrl
               </button>
               <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                 B
@@ -55,7 +55,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
             </span>
             <div className="flex gap-1">
               <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                ⌘
+                Ctrl
               </button>
               <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                 H
@@ -67,7 +67,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
               <span className="text-[11px] leading-none">Debug</span>
               <div className="flex gap-1">
                 <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                  ⌘
+                  Ctrl
                 </button>
                 <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                   ↵
@@ -81,7 +81,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
             <span className="text-[11px] leading-none">Start over</span>
             <div className="flex gap-1">
               <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                ⌘
+                Ctrl
               </button>
               <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                 R
@@ -124,7 +124,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
                           </span>
                           <div className="flex gap-1">
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                              ⌘
+                              Ctrl
                             </span>
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                               B
@@ -143,7 +143,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
                           </span>
                           <div className="flex gap-1">
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                              ⌘
+                              Ctrl
                             </span>
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                               H
@@ -162,7 +162,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
                           <span className="whitespace-nowrap">Debug</span>
                           <div className="flex gap-1">
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                              ⌘
+                              Ctrl
                             </span>
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                               ↵
@@ -180,7 +180,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
                           <span className="whitespace-nowrap">Start Over</span>
                           <div className="flex gap-1">
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                              ⌘
+                              Ctrl
                             </span>
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                               R
@@ -197,7 +197,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
                           <span className="whitespace-nowrap">Move Window</span>
                           <div className="flex gap-1">
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                              ⌘
+                              Ctrl
                             </span>
                             <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                               ←↑↓→
@@ -218,7 +218,7 @@ const ExtraScreenshotsQueueCommands: React.FC<
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ExtraScreenshotsQueueCommands
+export default ExtraScreenshotsQueueCommands;

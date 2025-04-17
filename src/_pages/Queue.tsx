@@ -126,7 +126,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
                 <span className="text-[11px] leading-none">Show/Hide</span>
                 <div className="flex gap-1">
                   <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                    ⌘
+                    Ctrl
                   </button>
                   <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                     B
@@ -143,7 +143,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
                 </span>
                 <div className="flex gap-1">
                   <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                    ⌘
+                    Ctrl
                   </button>
                   <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                     H
@@ -157,7 +157,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
                   <span className="text-[11px] leading-none">Solve</span>
                   <div className="flex gap-1">
                     <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
-                      ⌘
+                      Ctrl
                     </button>
                     <button className="bg-white/10 hover:bg-white/20 transition-colors rounded-md px-1.5 py-1 text-[11px] leading-none text-white/70">
                       ↵
@@ -175,7 +175,7 @@ const Queue: React.FC<QueueProps> = ({ setView }) => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Queue

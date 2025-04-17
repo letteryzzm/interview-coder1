@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>平台检测测试</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #333;
+      }
+      .info-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+      .info-item {
+        margin-bottom: 8px;
+      }
+      .key {
+        font-weight: bold;
+        color: #555;
+      }
+      .value {
+        color: #0066cc;
+      }
+      .platform-highlight {
+        font-size: 1.2em;
+        padding: 10px;
+        background-color: #e6f7ff;
+        border-left: 4px solid #1890ff;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>系统平台检测</h1>
+
+    <div class="platform-highlight">
+      <span class="key">当前平台:</span>
+      <span id="platform-value" class="value"></span>
+    </div>
+
+    <div class="platform-highlight">
+      <span class="key">应该使用的修饰键:</span>
+      <span id="modifier-key" class="value"></span>
+    </div>
+
+    <div class="info-section">
+      <h2>基本系统信息</h2>
+      <div id="basic-info"></div>
+    </div>
+
+    <div class="info-section">
+      <h2>环境变量 (部分关键变量)</h2>
+      <div id="env-info"></div>
+    </div>
+
+    <script>
+      console.log("页面加载中...");
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        console.log("DOM 已加载，开始获取系统信息...");
+
+        try {
+          // 检查 API 是否存在
+          if (!window.electronAPI) {
+            console.error("electronAPI 不存在!");
+            document.getElementById("platform-value").textContent =
+              "API 未加载";
+            document.getElementById("modifier-key").textContent = "无法检测";
+            return;
+          }
+
+          console.log("调用 electronAPI.getSystemInfo()...");
+          const systemInfo = await window.electronAPI.getSystemInfo();
+          console.log("获取到系统信息:", systemInfo);
+
+          // 显示平台信息
+          document.getElementById(
+            "platform-value"
+          ).textContent = `${systemInfo.platform} (${systemInfo.osType} ${systemInfo.osRelease})`;
+
+          // 显示应该使用的修饰键
+          const isMac = systemInfo.platform === "darwin";
+          document.getElementById("modifier-key").textContent = isMac
+            ? "Command"
+            : "Ctrl";
+          console.log(
+            `平台: ${systemInfo.platform}, isMac: ${isMac}, 修饰键: ${
+              isMac ? "Command" : "Ctrl"
+            }`
+          );
+
+          // 显示基本信息
+          const basicInfoDiv = document.getElementById("basic-info");
+          const basicInfoKeys = [
+            "electronVersion",
+            "nodeVersion",
+            "platform",
+            "arch",
+            "osType",
+            "osRelease",
+            "totalMemory",
+          ];
+
+          basicInfoKeys.forEach((key) => {
+            const div = document.createElement("div");
+            div.className = "info-item";
+            div.innerHTML = `<span class="key">${key}:</span> <span class="value">${
+              systemInfo[key] || "未知"
+            }</span>`;
+            basicInfoDiv.appendChild(div);
+          });
+
+          // 显示关键环境变量
+          const envInfoDiv = document.getElementById("env-info");
+          const envKeys = [
+            "OS",
+            "COMPUTERNAME",
+            "USERNAME",
+            "USERPROFILE",
+            "APPDATA",
+            "TEMP",
+            "PATH",
+            "ELECTRON_RUN_AS_NODE",
+            "NODE_OPTIONS",
+          ];
+
+          if (systemInfo.env) {
+            envKeys.forEach((key) => {
+              if (systemInfo.env[key]) {
+                const div = document.createElement("div");
+                div.className = "info-item";
+                div.innerHTML = `<span class="key">${key}:</span> <span class="value">${systemInfo.env[key]}</span>`;
+                envInfoDiv.appendChild(div);
+              }
+            });
+          } else {
+            const div = document.createElement("div");
+            div.textContent = "环境变量信息不可用";
+            envInfoDiv.appendChild(div);
+          }
+        } catch (error) {
+          console.error("处理系统信息时出错:", error);
+          document.getElementById("platform-value").textContent =
+            "错误: " + error.message;
+          document.getElementById("modifier-key").textContent = "无法检测";
+        }
+      });
+    </script>
+  </body>
+</html>

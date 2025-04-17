@@ -1,13 +1,13 @@
-import Store from "electron-store"
+import Store from "electron-store";
 
 interface StoreSchema {
-  openaiApiKey: string | null
+  openaiApiKey: string | null;
 }
 
 export const store = new Store<StoreSchema>({
   defaults: {
-    openaiApiKey: null
+    openaiApiKey: null,
   },
   // Encrypt the API key in storage
-  encryptionKey: "your-encryption-key"
-})
+  encryptionKey: "your-encryption-key",
+});

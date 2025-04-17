@@ -50,7 +50,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
                     <span className="truncate">Toggle Window</span>
                     <div className="flex gap-1 flex-shrink-0">
                       <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                        ⌘
+                        Ctrl
                       </span>
                       <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                         B
@@ -67,7 +67,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
                     <span className="truncate">Take Screenshot</span>
                     <div className="flex gap-1 flex-shrink-0">
                       <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                        ⌘
+                        Ctrl
                       </span>
                       <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                         H
@@ -87,7 +87,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
                     <span className="truncate">Solve Problem</span>
                     <div className="flex gap-1 flex-shrink-0">
                       <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
-                        ⌘
+                        Ctrl
                       </span>
                       <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] leading-none">
                         ↵
@@ -104,7 +104,7 @@ const QueueCommands: React.FC<QueueCommandsProps> = ({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default QueueCommands

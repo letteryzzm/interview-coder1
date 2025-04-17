@@ -4,58 +4,58 @@ import {
   ToastTitle,
   ToastDescription,
   ToastMessage,
-  ToastVariant
-} from "./components/ui/toast"
-import Queue from "./_pages/Queue"
-import { ToastViewport } from "@radix-ui/react-toast"
-import { useEffect, useRef, useState } from "react"
-import Solutions from "./_pages/Solutions"
-import { QueryClient, QueryClientProvider } from "react-query"
-import ApiKeyAuth from "./components/ApiKeyAuth"
-import { createContext, useContext } from "react"
+  ToastVariant,
+} from "./components/ui/toast";
+import Queue from "./_pages/Queue";
+import { ToastViewport } from "@radix-ui/react-toast";
+import { useEffect, useRef, useState } from "react";
+import Solutions from "./_pages/Solutions";
+import { QueryClient, QueryClientProvider } from "react-query";
+import ApiKeyAuth from "./components/ApiKeyAuth";
+import { createContext, useContext } from "react";
 
 declare global {
   interface Window {
     electronAPI: {
       //RANDOM GETTER/SETTERS
       updateContentDimensions: (dimensions: {
-        width: number
-        height: number
-      }) => Promise<void>
-      getScreenshots: () => Promise<Array<{ path: string; preview: string }>>
+        width: number;
+        height: number;
+      }) => Promise<void>;
+      getScreenshots: () => Promise<Array<{ path: string; preview: string }>>;
 
       //GLOBAL EVENTS
-      onUnauthorized: (callback: () => void) => () => void
-      onApiKeyOutOfCredits: (callback: () => void) => () => void
+      onUnauthorized: (callback: () => void) => () => void;
+      onApiKeyOutOfCredits: (callback: () => void) => () => void;
       onScreenshotTaken: (
         callback: (data: { path: string; preview: string }) => void
-      ) => () => void
-      onProcessingNoScreenshots: (callback: () => void) => () => void
-      onResetView: (callback: () => void) => () => void
-      takeScreenshot: () => Promise<void>
+      ) => () => void;
+      onProcessingNoScreenshots: (callback: () => void) => () => void;
+      onResetView: (callback: () => void) => () => void;
+      takeScreenshot: () => Promise<void>;
 
       //INITIAL SOLUTION EVENTS
       deleteScreenshot: (
         path: string
-      ) => Promise<{ success: boolean; error?: string }>
-      onSolutionStart: (callback: () => void) => () => void
-      onSolutionError: (callback: (error: string) => void) => () => void
-      onSolutionSuccess: (callback: (data: any) => void) => () => void
-      onProblemExtracted: (callback: (data: any) => void) => () => void
+      ) => Promise<{ success: boolean; error?: string }>;
+      onSolutionStart: (callback: () => void) => () => void;
+      onSolutionError: (callback: (error: string) => void) => () => void;
+      onSolutionSuccess: (callback: (data: any) => void) => () => void;
+      onProblemExtracted: (callback: (data: any) => void) => () => void;
 
-      onDebugSuccess: (callback: (data: any) => void) => () => void
+      onDebugSuccess: (callback: (data: any) => void) => () => void;
 
-      onDebugStart: (callback: () => void) => () => void
-      onDebugError: (callback: (error: string) => void) => () => void
+      onDebugStart: (callback: () => void) => () => void;
+      onDebugError: (callback: (error: string) => void) => () => void;
 
       // Add the updateApiKey method
-      updateApiKey: (apiKey: string) => Promise<void>
+      updateApiKey: (apiKey: string) => Promise<void>;
       setApiKey: (
         apiKey: string
-      ) => Promise<{ success: boolean; error?: string }>
+      ) => Promise<{ success: boolean; error?: string }>;
 
-      openExternal: (url: string) => Promise<void>
-    }
+      openExternal: (url: string) => Promise<void>;
+    };
   }
 }
 
@@ -63,137 +63,151 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: Infinity,
-      cacheTime: Infinity
-    }
-  }
-})
+      cacheTime: Infinity,
+    },
+  },
+});
 
 interface ToastContextType {
-  showToast: (title: string, description: string, variant: ToastVariant) => void
+  showToast: (
+    title: string,
+    description: string,
+    variant: ToastVariant
+  ) => void;
 }
 
 export const ToastContext = createContext<ToastContextType | undefined>(
   undefined
-)
+);
 
 export function useToast() {
-  const context = useContext(ToastContext)
+  const context = useContext(ToastContext);
   if (!context) {
-    throw new Error("useToast must be used within a ToastProvider")
+    throw new Error("useToast must be used within a ToastProvider");
   }
-  return context
+  return context;
 }
 
 const App: React.FC = () => {
-  const [view, setView] = useState<"queue" | "solutions" | "debug">("queue")
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [toastOpen, setToastOpen] = useState(false)
+  const [view, setView] = useState<"queue" | "solutions" | "debug">("queue");
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<ToastMessage>({
     title: "",
     description: "",
-    variant: "neutral"
-  })
+    variant: "neutral",
+  });
 
   const handleApiKeySubmit = async (key: string) => {
-    const result = await window.electronAPI.setApiKey(key)
+    const result = await window.electronAPI.setApiKey(key);
     if (result.success) {
-      setIsAuthenticated(true)
+      setIsAuthenticated(true);
     }
-  }
+  };
 
   const showToast = (
     title: string,
     description: string,
     variant: ToastVariant
   ) => {
-    setToastMessage({ title, description, variant })
-    setToastOpen(true)
-  }
+    setToastMessage({ title, description, variant });
+    setToastOpen(true);
+  };
 
   // Effect for height monitoring
 
   useEffect(() => {
     const cleanup = window.electronAPI.onResetView(() => {
-      queryClient.invalidateQueries(["screenshots"])
-      queryClient.invalidateQueries(["problem_statement"])
-      queryClient.invalidateQueries(["solution"])
-      queryClient.invalidateQueries(["new_solution"])
-      setView("queue")
-    })
+      queryClient.invalidateQueries(["screenshots"]);
+      queryClient.invalidateQueries(["problem_statement"]);
+      queryClient.invalidateQueries(["solution"]);
+      queryClient.invalidateQueries(["new_solution"]);
+      setView("queue");
+    });
 
     return () => {
-      cleanup()
-    }
-  }, [])
+      cleanup();
+    };
+  }, []);
 
   useEffect(() => {
-    if (!containerRef.current) return
+    if (!containerRef.current) return;
 
     const updateHeight = () => {
-      if (!containerRef.current) return
-      const height = containerRef.current.scrollHeight
-      const width = containerRef.current.scrollWidth
-      window.electronAPI?.updateContentDimensions({ width, height })
-    }
+      if (!containerRef.current) return;
+      const height = containerRef.current.scrollHeight;
+      const width = containerRef.current.scrollWidth;
+      window.electronAPI?.updateContentDimensions({ width, height });
+    };
 
     const resizeObserver = new ResizeObserver(() => {
-      updateHeight()
-    })
+      updateHeight();
+    });
 
     // Initial height update
-    updateHeight()
+    updateHeight();
 
     // Observe for changes
-    resizeObserver.observe(containerRef.current)
+    resizeObserver.observe(containerRef.current);
 
     // Also update height when view changes
     const mutationObserver = new MutationObserver(() => {
-      updateHeight()
-    })
+      updateHeight();
+    });
 
     mutationObserver.observe(containerRef.current, {
       childList: true,
       subtree: true,
       attributes: true,
-      characterData: true
-    })
+      characterData: true,
+    });
 
     return () => {
-      resizeObserver.disconnect()
-      mutationObserver.disconnect()
-    }
-  }, [view]) // Re-run when view changes
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [view]); // Re-run when view changes
   useEffect(() => {
     const cleanupFunctions = [
       window.electronAPI.onSolutionStart(() => {
-        setView("solutions")
+        setView("solutions");
       }),
 
       window.electronAPI.onUnauthorized(() => {
-        queryClient.removeQueries(["screenshots"])
-        queryClient.removeQueries(["solution"])
-        queryClient.removeQueries(["problem_statement"])
-        setView("queue")
+        queryClient.removeQueries(["screenshots"]);
+        queryClient.removeQueries(["solution"]);
+        queryClient.removeQueries(["problem_statement"]);
+        setView("queue");
       }),
       // Update this reset handler
       window.electronAPI.onResetView(() => {
-        queryClient.removeQueries(["screenshots"])
-        queryClient.removeQueries(["solution"])
-        queryClient.removeQueries(["problem_statement"])
-        setView("queue")
+        queryClient.removeQueries(["screenshots"]);
+        queryClient.removeQueries(["solution"]);
+        queryClient.removeQueries(["problem_statement"]);
+        setView("queue");
       }),
       window.electronAPI.onProblemExtracted((data: any) => {
         if (view === "queue") {
-          queryClient.invalidateQueries(["problem_statement"])
-          queryClient.setQueryData(["problem_statement"], data)
+          queryClient.invalidateQueries(["problem_statement"]);
+          queryClient.setQueryData(["problem_statement"], data);
         }
-      })
-    ]
-    return () => cleanupFunctions.forEach((cleanup) => cleanup())
-  }, [])
+      }),
+    ];
+    return () => cleanupFunctions.forEach((cleanup) => cleanup());
+  }, []);
+useEffect(() => {
+  // 手动触发API密钥设置
+  const initApp = async () => {
+    // 使用一个假密钥调用setApiKey以触发相同的初始化流程
+    await window.electronAPI.setApiKey("env-loaded-key");
+    console.log("API密钥从.env自动加载，初始化完成");
+  };
+  
+  initApp();
+}, []);
 
-  if (!isAuthenticated) {
+ if (!isAuthenticated) {
     return <ApiKeyAuth onApiKeySubmit={handleApiKeySubmit} />
   }
 
@@ -223,7 +237,7 @@ const App: React.FC = () => {
         </ToastProvider>
       </QueryClientProvider>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

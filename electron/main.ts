@@ -185,24 +185,25 @@ export class AppState {
 
 // Application initialization
 async function initializeApp() {
-  const appState = AppState.getInstance()
+  const appState = AppState.getInstance();
 
   // Initialize IPC handlers before window creation
-  initializeIpcHandlers(appState)
+  initializeIpcHandlers(appState);
 
   app.whenReady().then(() => {
-    console.log("App is ready")
-    appState.createWindow()
+    console.log("App is ready");
+    appState.createWindow();
     // Register global shortcuts using ShortcutsHelper
-    appState.shortcutsHelper.registerGlobalShortcuts()
+    appState.shortcutsHelper.registerGlobalShortcuts();
 
     // Initialize auto-updater in production
     if (app.isPackaged) {
-      initAutoUpdater()
+      initAutoUpdater();
     } else {
-      console.log("Running in development mode - auto-updater disabled")
+      console.log("Running in development mode - auto-updater disabled");
     }
-  })
+  });
+  
 
   app.on("activate", () => {
     console.log("App activated")
@@ -214,13 +215,14 @@ async function initializeApp() {
   // Quit when all windows are closed, except on macOS
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
-      app.quit()
+      app.quit();
     }
-  })
+  });
 
-  app.dock?.hide() // Hide dock icon (optional)
-  app.commandLine.appendSwitch("disable-background-timer-throttling")
+  app.dock?.hide(); // Hide dock icon (optional)
+  app.commandLine.appendSwitch("disable-background-timer-throttling");
 }
+// 存储所有窗口的引用
 
 // Start the application
 initializeApp().catch(console.error)

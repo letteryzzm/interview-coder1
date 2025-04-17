@@ -1,37 +1,37 @@
 // Debug.tsx
-import React, { useState, useEffect, useRef } from "react"
-import { useQuery, useQueryClient } from "react-query"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
-import { ComplexitySection, ContentSection } from "./Solutions"
-import ScreenshotQueue from "../components/Queue/ScreenshotQueue"
+import React, { useState, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { ComplexitySection, ContentSection } from "./Solutions";
+import ScreenshotQueue from "../components/Queue/ScreenshotQueue";
 import {
   Toast,
   ToastDescription,
   ToastMessage,
   ToastTitle,
-  ToastVariant
-} from "../components/ui/toast"
-import SolutionCommands from "../components/Solutions/SolutionCommands"
-import { diffLines } from "diff"
+  ToastVariant,
+} from "../components/ui/toast";
+import SolutionCommands from "../components/Solutions/SolutionCommands";
+import { diffLines } from "diff";
 
 type DiffLine = {
-  value: string
-  added?: boolean
-  removed?: boolean
-}
+  value: string;
+  added?: boolean;
+  removed?: boolean;
+};
 
 const CodeComparisonSection = ({
   oldCode,
   newCode,
-  isLoading
+  isLoading,
 }: {
-  oldCode: string | null
-  newCode: string | null
-  isLoading: boolean
+  oldCode: string | null;
+  newCode: string | null;
+  isLoading: boolean;
 }) => {
   const computeDiff = () => {
-    if (!oldCode || !newCode) return { leftLines: [], rightLines: [] }
+    if (!oldCode || !newCode) return { leftLines: [], rightLines: [] };
 
     // Normalize line endings and clean up the code
     const normalizeCode = (code: string) => {
@@ -40,60 +40,60 @@ const CodeComparisonSection = ({
         .replace(/\r/g, "\n") // Convert remaining carriage returns
         .split("\n") // Split into lines
         .map((line) => line.trimRight()) // Remove trailing whitespace from each line
-        .join("\n") // Rejoin with Unix line endings
-    }
+        .join("\n"); // Rejoin with Unix line endings
+    };
 
-    const normalizedOldCode = normalizeCode(oldCode)
-    const normalizedNewCode = normalizeCode(newCode)
+    const normalizedOldCode = normalizeCode(oldCode);
+    const normalizedNewCode = normalizeCode(newCode);
 
     // Generate the diff
     const diff = diffLines(normalizedOldCode, normalizedNewCode, {
       newlineIsToken: true,
-      ignoreWhitespace: false // Changed to false to preserve intended whitespace
-    })
+      ignoreWhitespace: false, // Changed to false to preserve intended whitespace
+    });
 
     // Process the diff to create parallel arrays
-    const leftLines: DiffLine[] = []
-    const rightLines: DiffLine[] = []
+    const leftLines: DiffLine[] = [];
+    const rightLines: DiffLine[] = [];
 
     diff.forEach((part) => {
       if (part.added) {
         // Add empty lines to left side
-        const lines = part.value.split("\n")
-        if (lines[lines.length - 1] === "") lines.pop() // Remove trailing empty line
-        leftLines.push(...Array(lines.length).fill({ value: "" }))
+        const lines = part.value.split("\n");
+        if (lines[lines.length - 1] === "") lines.pop(); // Remove trailing empty line
+        leftLines.push(...Array(lines.length).fill({ value: "" }));
         // Add new lines to right side
         rightLines.push(
           ...lines.map((line) => ({
             value: line,
-            added: true
+            added: true,
           }))
-        )
+        );
       } else if (part.removed) {
         // Add removed lines to left side
-        const lines = part.value.split("\n")
-        if (lines[lines.length - 1] === "") lines.pop() // Remove trailing empty line
+        const lines = part.value.split("\n");
+        if (lines[lines.length - 1] === "") lines.pop(); // Remove trailing empty line
         leftLines.push(
           ...lines.map((line) => ({
             value: line,
-            removed: true
+            removed: true,
           }))
-        )
+        );
         // Add empty lines to right side
-        rightLines.push(...Array(lines.length).fill({ value: "" }))
+        rightLines.push(...Array(lines.length).fill({ value: "" }));
       } else {
         // Add unchanged lines to both sides
-        const lines = part.value.split("\n")
-        if (lines[lines.length - 1] === "") lines.pop() // Remove trailing empty line
-        leftLines.push(...lines.map((line) => ({ value: line })))
-        rightLines.push(...lines.map((line) => ({ value: line })))
+        const lines = part.value.split("\n");
+        if (lines[lines.length - 1] === "") lines.pop(); // Remove trailing empty line
+        leftLines.push(...lines.map((line) => ({ value: line })));
+        rightLines.push(...lines.map((line) => ({ value: line })));
       }
-    })
+    });
 
-    return { leftLines, rightLines }
-  }
+    return { leftLines, rightLines };
+  };
 
-  const { leftLines, rightLines } = computeDiff()
+  const { leftLines, rightLines } = computeDiff();
 
   return (
     <div className="space-y-1.5">
@@ -126,20 +126,20 @@ const CodeComparisonSection = ({
                   margin: 0,
                   padding: "1rem",
                   whiteSpace: "pre-wrap",
-                  wordBreak: "break-all"
+                  wordBreak: "break-all",
                 }}
                 wrapLines={true}
                 showLineNumbers={true}
                 lineProps={(lineNumber) => {
-                  const line = leftLines[lineNumber - 1]
+                  const line = leftLines[lineNumber - 1];
                   return {
                     style: {
                       display: "block",
                       backgroundColor: line?.removed
                         ? "rgba(139, 0, 0, 0.2)"
-                        : "transparent"
-                    }
-                  }
+                        : "transparent",
+                    },
+                  };
                 }}
               >
                 {leftLines.map((line) => line.value).join("\n")}
@@ -163,20 +163,20 @@ const CodeComparisonSection = ({
                   margin: 0,
                   padding: "1rem",
                   whiteSpace: "pre-wrap",
-                  wordBreak: "break-all"
+                  wordBreak: "break-all",
                 }}
                 wrapLines={true}
                 showLineNumbers={true}
                 lineProps={(lineNumber) => {
-                  const line = rightLines[lineNumber - 1]
+                  const line = rightLines[lineNumber - 1];
                   return {
                     style: {
                       display: "block",
                       backgroundColor: line?.added
                         ? "rgba(0, 139, 0, 0.2)"
-                        : "transparent"
-                    }
-                  }
+                        : "transparent",
+                    },
+                  };
                 }}
               >
                 {rightLines.map((line) => line.value).join("\n")}
@@ -186,98 +186,98 @@ const CodeComparisonSection = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 interface DebugProps {
-  isProcessing: boolean
-  setIsProcessing: (isProcessing: boolean) => void
+  isProcessing: boolean;
+  setIsProcessing: (isProcessing: boolean) => void;
 }
 
 const Debug: React.FC<DebugProps> = ({ isProcessing, setIsProcessing }) => {
-  const queryClient = useQueryClient()
-  const contentRef = useRef<HTMLDivElement>(null)
+  const queryClient = useQueryClient();
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const [oldCode, setOldCode] = useState<string | null>(null)
-  const [newCode, setNewCode] = useState<string | null>(null)
-  const [thoughtsData, setThoughtsData] = useState<string[] | null>(null)
+  const [oldCode, setOldCode] = useState<string | null>(null);
+  const [newCode, setNewCode] = useState<string | null>(null);
+  const [thoughtsData, setThoughtsData] = useState<string[] | null>(null);
   const [timeComplexityData, setTimeComplexityData] = useState<string | null>(
     null
-  )
+  );
   const [spaceComplexityData, setSpaceComplexityData] = useState<string | null>(
     null
-  )
+  );
 
-  const [toastOpen, setToastOpen] = useState(false)
+  const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<ToastMessage>({
     title: "",
     description: "",
-    variant: "neutral"
-  })
+    variant: "neutral",
+  });
 
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
-  const [tooltipHeight, setTooltipHeight] = useState(0)
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [tooltipHeight, setTooltipHeight] = useState(0);
 
   const { data: extraScreenshots = [], refetch } = useQuery({
     queryKey: ["extras"],
     queryFn: async () => {
       try {
-        const existing = await window.electronAPI.getScreenshots()
-        return existing
+        const existing = await window.electronAPI.getScreenshots();
+        return existing;
       } catch (error) {
-        console.error("Error loading extra screenshots:", error)
-        return []
+        console.error("Error loading extra screenshots:", error);
+        return [];
       }
     },
     staleTime: Infinity,
-    cacheTime: Infinity
-  })
+    cacheTime: Infinity,
+  });
 
   const showToast = (
     title: string,
     description: string,
     variant: ToastVariant
   ) => {
-    setToastMessage({ title, description, variant })
-    setToastOpen(true)
-  }
+    setToastMessage({ title, description, variant });
+    setToastOpen(true);
+  };
 
   const handleDeleteExtraScreenshot = async (index: number) => {
-    const screenshotToDelete = extraScreenshots[index]
+    const screenshotToDelete = extraScreenshots[index];
 
     try {
       const response = await window.electronAPI.deleteScreenshot(
         screenshotToDelete.path
-      )
+      );
 
       if (response.success) {
-        refetch()
+        refetch();
       } else {
-        console.error("Failed to delete extra screenshot:", response.error)
+        console.error("Failed to delete extra screenshot:", response.error);
       }
     } catch (error) {
-      console.error("Error deleting extra screenshot:", error)
+      console.error("Error deleting extra screenshot:", error);
     }
-  }
+  };
 
   useEffect(() => {
     // Try to get the new solution data from cache first
     const newSolution = queryClient.getQueryData(["new_solution"]) as {
-      old_code: string
-      new_code: string
-      thoughts: string[]
-      time_complexity: string
-      space_complexity: string
-    } | null
+      old_code: string;
+      new_code: string;
+      thoughts: string[];
+      time_complexity: string;
+      space_complexity: string;
+    } | null;
 
     // If we have cached data, set all state variables to the cached data
     if (newSolution) {
-      setOldCode(newSolution.old_code || null)
-      setNewCode(newSolution.new_code || null)
-      setThoughtsData(newSolution.thoughts || null)
-      setTimeComplexityData(newSolution.time_complexity || null)
-      setSpaceComplexityData(newSolution.space_complexity || null)
-      setIsProcessing(false)
+      setOldCode(newSolution.old_code || null);
+      setNewCode(newSolution.new_code || null);
+      setThoughtsData(newSolution.thoughts || null);
+      setTimeComplexityData(newSolution.time_complexity || null);
+      setSpaceComplexityData(newSolution.space_complexity || null);
+      setIsProcessing(false);
     }
 
     // Set up event listeners
@@ -285,53 +285,53 @@ const Debug: React.FC<DebugProps> = ({ isProcessing, setIsProcessing }) => {
       window.electronAPI.onScreenshotTaken(() => refetch()),
       window.electronAPI.onResetView(() => refetch()),
       window.electronAPI.onDebugSuccess(() => {
-        setIsProcessing(false) //all the other stuff ahapepns in the parent component, so we just need to do this.
+        setIsProcessing(false); //all the other stuff ahapepns in the parent component, so we just need to do this.
       }),
       window.electronAPI.onDebugStart(() => {
-        setIsProcessing(true)
+        setIsProcessing(true);
       }),
       window.electronAPI.onDebugError((error: string) => {
         showToast(
           "Processing Failed",
           "There was an error debugging your code.",
           "error"
-        )
-        setIsProcessing(false)
-        console.error("Processing error:", error)
-      })
-    ]
+        );
+        setIsProcessing(false);
+        console.error("Processing error:", error);
+      }),
+    ];
 
     // Set up resize observer
     const updateDimensions = () => {
       if (contentRef.current) {
-        let contentHeight = contentRef.current.scrollHeight
-        const contentWidth = contentRef.current.scrollWidth
+        let contentHeight = contentRef.current.scrollHeight;
+        const contentWidth = contentRef.current.scrollWidth;
         if (isTooltipVisible) {
-          contentHeight += tooltipHeight
+          contentHeight += tooltipHeight;
         }
         window.electronAPI.updateContentDimensions({
           width: contentWidth,
-          height: contentHeight
-        })
+          height: contentHeight,
+        });
       }
-    }
+    };
 
-    const resizeObserver = new ResizeObserver(updateDimensions)
+    const resizeObserver = new ResizeObserver(updateDimensions);
     if (contentRef.current) {
-      resizeObserver.observe(contentRef.current)
+      resizeObserver.observe(contentRef.current);
     }
-    updateDimensions()
+    updateDimensions();
 
     return () => {
-      resizeObserver.disconnect()
-      cleanupFunctions.forEach((cleanup) => cleanup())
-    }
-  }, [queryClient])
+      resizeObserver.disconnect();
+      cleanupFunctions.forEach((cleanup) => cleanup());
+    };
+  }, [queryClient]);
 
   const handleTooltipVisibilityChange = (visible: boolean, height: number) => {
-    setIsTooltipVisible(visible)
-    setTooltipHeight(height)
-  }
+    setIsTooltipVisible(visible);
+    setTooltipHeight(height);
+  };
 
   return (
     <div ref={contentRef} className="relative space-y-3 px-4 py-3 ">
@@ -405,7 +405,7 @@ const Debug: React.FC<DebugProps> = ({ isProcessing, setIsProcessing }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Debug
+export default Debug;

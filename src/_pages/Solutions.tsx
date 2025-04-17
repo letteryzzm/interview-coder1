@@ -1,24 +1,24 @@
 // Solutions.tsx
-import React, { useState, useEffect, useRef } from "react"
-import { useQuery, useQueryClient } from "react-query"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"
+import React, { useState, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-import ScreenshotQueue from "../components/Queue/ScreenshotQueue"
+import ScreenshotQueue from "../components/Queue/ScreenshotQueue";
 
-import { ProblemStatementData } from "../types/solutions"
-import SolutionCommands from "../components/Solutions/SolutionCommands"
-import Debug from "./Debug"
-import { useToast } from "../App"
+import { ProblemStatementData } from "../types/solutions";
+import SolutionCommands from "../components/Solutions/SolutionCommands";
+import Debug from "./Debug";
+import { useToast } from "../App";
 
 export const ContentSection = ({
   title,
   content,
-  isLoading
+  isLoading,
 }: {
-  title: string
-  content: React.ReactNode
-  isLoading: boolean
+  title: string;
+  content: React.ReactNode;
+  isLoading: boolean;
 }) => (
   <div className="space-y-2">
     <h2 className="text-[13px] font-medium text-white tracking-wide">
@@ -36,15 +36,15 @@ export const ContentSection = ({
       </div>
     )}
   </div>
-)
+);
 const SolutionSection = ({
   title,
   content,
-  isLoading
+  isLoading,
 }: {
-  title: string
-  content: React.ReactNode
-  isLoading: boolean
+  title: string;
+  content: React.ReactNode;
+  isLoading: boolean;
 }) => (
   <div className="space-y-2">
     <h2 className="text-[13px] font-medium text-white tracking-wide">
@@ -69,7 +69,7 @@ const SolutionSection = ({
             margin: 0,
             padding: "1rem",
             whiteSpace: "pre-wrap",
-            wordBreak: "break-all"
+            wordBreak: "break-all",
           }}
           wrapLongLines={true}
         >
@@ -78,16 +78,16 @@ const SolutionSection = ({
       </div>
     )}
   </div>
-)
+);
 
 export const ComplexitySection = ({
   timeComplexity,
   spaceComplexity,
-  isLoading
+  isLoading,
 }: {
-  timeComplexity: string | null
-  spaceComplexity: string | null
-  isLoading: boolean
+  timeComplexity: string | null;
+  spaceComplexity: string | null;
+  isLoading: boolean;
 }) => (
   <div className="space-y-2">
     <h2 className="text-[13px] font-medium text-white tracking-wide">
@@ -114,71 +114,73 @@ export const ComplexitySection = ({
       </div>
     )}
   </div>
-)
+);
 
 interface SolutionsProps {
-  setView: React.Dispatch<React.SetStateAction<"queue" | "solutions" | "debug">>
+  setView: React.Dispatch<
+    React.SetStateAction<"queue" | "solutions" | "debug">
+  >;
 }
 const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
-  const queryClient = useQueryClient()
-  const contentRef = useRef<HTMLDivElement>(null)
+  const queryClient = useQueryClient();
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const [debugProcessing, setDebugProcessing] = useState(false)
+  const [debugProcessing, setDebugProcessing] = useState(false);
   const [problemStatementData, setProblemStatementData] =
-    useState<ProblemStatementData | null>(null)
-  const [solutionData, setSolutionData] = useState<string | null>(null)
-  const [thoughtsData, setThoughtsData] = useState<string[] | null>(null)
+    useState<ProblemStatementData | null>(null);
+  const [solutionData, setSolutionData] = useState<string | null>(null);
+  const [thoughtsData, setThoughtsData] = useState<string[] | null>(null);
   const [timeComplexityData, setTimeComplexityData] = useState<string | null>(
     null
-  )
+  );
   const [spaceComplexityData, setSpaceComplexityData] = useState<string | null>(
     null
-  )
+  );
 
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
-  const [tooltipHeight, setTooltipHeight] = useState(0)
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [tooltipHeight, setTooltipHeight] = useState(0);
 
-  const [isResetting, setIsResetting] = useState(false)
+  const [isResetting, setIsResetting] = useState(false);
 
   const { data: extraScreenshots = [], refetch } = useQuery({
     queryKey: ["extras"],
     queryFn: async () => {
       try {
-        const existing = await window.electronAPI.getScreenshots()
-        return existing
+        const existing = await window.electronAPI.getScreenshots();
+        return existing;
       } catch (error) {
-        console.error("Error loading extra screenshots:", error)
-        return []
+        console.error("Error loading extra screenshots:", error);
+        return [];
       }
     },
     staleTime: Infinity,
-    cacheTime: Infinity
-  })
+    cacheTime: Infinity,
+  });
 
-  const { showToast } = useToast()
+  const { showToast } = useToast();
 
   useEffect(() => {
     // Height update logic
     const updateDimensions = () => {
       if (contentRef.current) {
-        let contentHeight = contentRef.current.scrollHeight
-        const contentWidth = contentRef.current.scrollWidth
+        let contentHeight = contentRef.current.scrollHeight;
+        const contentWidth = contentRef.current.scrollWidth;
         if (isTooltipVisible) {
-          contentHeight += tooltipHeight
+          contentHeight += tooltipHeight;
         }
         window.electronAPI.updateContentDimensions({
           width: contentWidth,
-          height: contentHeight
-        })
+          height: contentHeight,
+        });
       }
-    }
+    };
 
     // Initialize resize observer
-    const resizeObserver = new ResizeObserver(updateDimensions)
+    const resizeObserver = new ResizeObserver(updateDimensions);
     if (contentRef.current) {
-      resizeObserver.observe(contentRef.current)
+      resizeObserver.observe(contentRef.current);
     }
-    updateDimensions()
+    updateDimensions();
 
     // Set up event listeners
     const cleanupFunctions = [
@@ -188,30 +190,30 @@ const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
           "API Key Out of Credits",
           "Your OpenAI API key is out of credits. Please refill your credits and try again.",
           "error"
-        )
+        );
       }),
       window.electronAPI.onResetView(() => {
         // Set resetting state first
-        setIsResetting(true)
+        setIsResetting(true);
 
         // Clear the queries
-        queryClient.removeQueries(["solution"])
-        queryClient.removeQueries(["new_solution"])
+        queryClient.removeQueries(["solution"]);
+        queryClient.removeQueries(["new_solution"]);
 
         // Reset other states
-        refetch()
+        refetch();
 
         // After a small delay, clear the resetting state
         setTimeout(() => {
-          setIsResetting(false)
-        }, 0)
+          setIsResetting(false);
+        }, 0);
       }),
       window.electronAPI.onSolutionStart(() => {
         // Every time processing starts, reset relevant states
-        setSolutionData(null)
-        setThoughtsData(null)
-        setTimeComplexityData(null)
-        setSpaceComplexityData(null)
+        setSolutionData(null);
+        setThoughtsData(null);
+        setTimeComplexityData(null);
+        setSpaceComplexityData(null);
       }),
       //if there was an error processing the initial solution
       window.electronAPI.onSolutionError((error: string) => {
@@ -219,42 +221,42 @@ const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
           "Processing Failed",
           "There was an error processing your extra screenshots.",
           "error"
-        )
+        );
         // Reset solutions in the cache (even though this shouldn't ever happen) and complexities to previous states
         const solution = queryClient.getQueryData(["solution"]) as {
-          code: string
-          thoughts: string[]
-          time_complexity: string
-          space_complexity: string
-        } | null
+          code: string;
+          thoughts: string[];
+          time_complexity: string;
+          space_complexity: string;
+        } | null;
         if (!solution) {
-          setView("queue") //make sure that this is correct. or like make sure there's a toast or something
+          setView("queue"); //make sure that this is correct. or like make sure there's a toast or something
         }
-        setSolutionData(solution?.code || null)
-        setThoughtsData(solution?.thoughts || null)
-        setTimeComplexityData(solution?.time_complexity || null)
-        setSpaceComplexityData(solution?.space_complexity || null)
-        console.error("Processing error:", error)
+        setSolutionData(solution?.code || null);
+        setThoughtsData(solution?.thoughts || null);
+        setTimeComplexityData(solution?.time_complexity || null);
+        setSpaceComplexityData(solution?.space_complexity || null);
+        console.error("Processing error:", error);
       }),
       //when the initial solution is generated, we'll set the solution data to that
       window.electronAPI.onSolutionSuccess((data) => {
         if (!data) {
-          console.warn("Received empty or invalid solution data")
-          return
+          console.warn("Received empty or invalid solution data");
+          return;
         }
-        console.log({ data })
+        console.log({ data });
         const solutionData = {
           code: data.code,
           thoughts: data.thoughts,
           time_complexity: data.time_complexity,
-          space_complexity: data.space_complexity
-        }
+          space_complexity: data.space_complexity,
+        };
 
-        queryClient.setQueryData(["solution"], solutionData)
-        setSolutionData(solutionData.code || null)
-        setThoughtsData(solutionData.thoughts || null)
-        setTimeComplexityData(solutionData.time_complexity || null)
-        setSpaceComplexityData(solutionData.space_complexity || null)
+        queryClient.setQueryData(["solution"], solutionData);
+        setSolutionData(solutionData.code || null);
+        setThoughtsData(solutionData.thoughts || null);
+        setTimeComplexityData(solutionData.time_complexity || null);
+        setSpaceComplexityData(solutionData.space_complexity || null);
       }),
 
       //########################################################
@@ -262,12 +264,12 @@ const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
       //########################################################
       window.electronAPI.onDebugStart(() => {
         //we'll set the debug processing state to true and use that to render a little loader
-        setDebugProcessing(true)
+        setDebugProcessing(true);
       }),
       //the first time debugging works, we'll set the view to debug and populate the cache with the data
       window.electronAPI.onDebugSuccess((data) => {
-        queryClient.setQueryData(["new_solution"], data)
-        setDebugProcessing(false)
+        queryClient.setQueryData(["new_solution"], data);
+        setDebugProcessing(false);
       }),
       //when there was an error in the initial debugging, we'll show a toast and stop the little generating pulsing thing.
       window.electronAPI.onDebugError(() => {
@@ -275,77 +277,77 @@ const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
           "Processing Failed",
           "There was an error debugging your code.",
           "error"
-        )
-        setDebugProcessing(false)
+        );
+        setDebugProcessing(false);
       }),
       window.electronAPI.onProcessingNoScreenshots(() => {
         showToast(
           "No Screenshots",
           "There are no extra screenshots to process.",
           "neutral"
-        )
-      })
-    ]
+        );
+      }),
+    ];
 
     return () => {
-      resizeObserver.disconnect()
-      cleanupFunctions.forEach((cleanup) => cleanup())
-    }
-  }, [isTooltipVisible, tooltipHeight])
+      resizeObserver.disconnect();
+      cleanupFunctions.forEach((cleanup) => cleanup());
+    };
+  }, [isTooltipVisible, tooltipHeight]);
 
   useEffect(() => {
     setProblemStatementData(
       queryClient.getQueryData(["problem_statement"]) || null
-    )
-    setSolutionData(queryClient.getQueryData(["solution"]) || null)
+    );
+    setSolutionData(queryClient.getQueryData(["solution"]) || null);
 
     const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
       if (event?.query.queryKey[0] === "problem_statement") {
         setProblemStatementData(
           queryClient.getQueryData(["problem_statement"]) || null
-        )
+        );
       }
       if (event?.query.queryKey[0] === "solution") {
         const solution = queryClient.getQueryData(["solution"]) as {
-          code: string
-          thoughts: string[]
-          time_complexity: string
-          space_complexity: string
-        } | null
+          code: string;
+          thoughts: string[];
+          time_complexity: string;
+          space_complexity: string;
+        } | null;
 
-        setSolutionData(solution?.code ?? null)
-        setThoughtsData(solution?.thoughts ?? null)
-        setTimeComplexityData(solution?.time_complexity ?? null)
-        setSpaceComplexityData(solution?.space_complexity ?? null)
+        setSolutionData(solution?.code ?? null);
+        setThoughtsData(solution?.thoughts ?? null);
+        setTimeComplexityData(solution?.time_complexity ?? null);
+        setSpaceComplexityData(solution?.space_complexity ?? null);
       }
-    })
-    return () => unsubscribe()
-  }, [queryClient])
+    });
+    return () => unsubscribe();
+  }, [queryClient]);
 
   const handleTooltipVisibilityChange = (visible: boolean, height: number) => {
-    setIsTooltipVisible(visible)
-    setTooltipHeight(height)
-  }
+    setIsTooltipVisible(visible);
+    setTooltipHeight(height);
+  };
 
   const handleDeleteExtraScreenshot = async (index: number) => {
-    const screenshotToDelete = extraScreenshots[index]
+    const screenshotToDelete = extraScreenshots[index];
 
     try {
       const response = await window.electronAPI.deleteScreenshot(
         screenshotToDelete.path
-      )
+      );
 
       if (response.success) {
-        refetch() // Refetch screenshots instead of managing state directly
+        refetch(); // Refetch screenshots instead of managing state directly
       } else {
-        console.error("Failed to delete extra screenshot:", response.error)
-        showToast("Error", "Failed to delete the screenshot", "error")
+        console.error("Failed to delete extra screenshot:", response.error);
+        showToast("Error", "Failed to delete the screenshot", "error");
       }
     } catch (error) {
-      console.error("Error deleting extra screenshot:", error)
-      showToast("Error", "Failed to delete the screenshot", "error")
+      console.error("Error deleting extra screenshot:", error);
+      showToast("Error", "Failed to delete the screenshot", "error");
     }
-  }
+  };
 
   return (
     <>
@@ -441,7 +443,7 @@ const Solutions: React.FC<SolutionsProps> = ({ setView }) => {
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default Solutions
+export default Solutions;
