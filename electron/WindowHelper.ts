@@ -6,9 +6,12 @@ import path from "node:path";
 
 const isDev = process.env.NODE_ENV === "development";
 
+/*
 const startUrl = isDev
   ? "http://localhost:5173"
   : `file://${path.join(__dirname, "../dist/index.html")}`;
+*/
+const startUrl = "http://localhost:5173";
 
 export class WindowHelper {
   private mainWindow: BrowserWindow | null = null;
@@ -70,7 +73,7 @@ export class WindowHelper {
 
   public createWindow(): void {
     if (this.mainWindow !== null) return;
-    
+
     const primaryDisplay = screen.getPrimaryDisplay();
     const workArea = primaryDisplay.workAreaSize;
     this.screenWidth = workArea.width;
@@ -102,8 +105,8 @@ export class WindowHelper {
 
     this.mainWindow = new BrowserWindow(windowSettings);
     //this.mainWindow.webContents.openDevTools()
-    this.mainWindow.setContentProtection(true);
-    
+    //this.mainWindow.setContentProtection(true);
+
     this.mainWindow.setAlwaysOnTop(true, "normal");
 
     this.mainWindow.loadURL(startUrl).catch((err) => {

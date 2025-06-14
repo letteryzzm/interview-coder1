@@ -1,10 +1,12 @@
-# Interview Coder
+# Interview Coder1
 
-An invisible desktop application that will help you pass your technical interviews.
+魔改版——暂时实现了：
 
+1 自由调用模型厂商
 
-https://github.com/user-attachments/assets/caf1e6cd-27d5-4033-b8c5-9df1cb52b21d
+2 设置视觉模型是否进行单独使用
 
+3 增强了模型的图片内容输入
 
 ## Invisibility Compatibility
 
@@ -69,6 +71,7 @@ The application uses unidentifiable global keyboard shortcuts that won't be dete
    - Toggle between solutions and queue views
 
 5. **Window Management**
+
    - Move window freely using global shortcut
    - Toggle visibility as needed
    - Window remains invisible to specified applications

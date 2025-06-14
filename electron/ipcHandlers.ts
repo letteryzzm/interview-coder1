@@ -69,7 +69,7 @@ export function initializeIpcHandlers(appState: AppState): void {
       return { success: false, error: error.message };
     }
   });
-
+/*
   ipcMain.handle("set-api-key", (_event, apiKey: string) => {
     try {
       store.set("openaiApiKey", apiKey);
@@ -78,5 +78,5 @@ export function initializeIpcHandlers(appState: AppState): void {
       console.error("Error setting API key:", error);
       return { success: false, error: "Failed to set API key" };
     }
-  });
+  });*/
 }
